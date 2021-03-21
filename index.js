@@ -4,7 +4,7 @@
 
 const fetch = require("node-fetch");
 
-let accessToken = "";
+// let accessToken = "";
 
 async function getMonthSchedule(userData, date = new Date()) {
   const link = `https://msapi.itstep.org/api/v2/schedule/operations/get-month?date_filter=${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
@@ -30,6 +30,26 @@ async function getReviews(userData) {
   const link = "https://msapi.itstep.org/api/v2/reviews/index/list";
 
   const referrerLink = "https://mystat.itstep.org/ru/main/feedback/page/index";
+
+  const parameter = await createFetchParameter(referrerLink, userData);
+
+  return await getResponse(link, parameter, userData);
+}
+
+async function getVisits(userData) {
+  const link = "https://msapi.itstep.org/api/v2/progress/operations/student-visits";
+
+  const referrerLink = "https://mystat.itstep.org/ru/main/progress/page/index";
+
+  const parameter = await createFetchParameter(referrerLink, userData);
+
+  return await getResponse(link, parameter, userData);
+}
+
+async function getAttendance(userData) {
+  const link = "https://msapi.itstep.org/api/v2/dashboard/chart/attendance";
+
+  const referrerLink = "https://mystat.itstep.org/ru/main/dashboard/page/index";
 
   const parameter = await createFetchParameter(referrerLink, userData);
 
@@ -139,6 +159,10 @@ async function loadProfileInfo(userData) {
   return await getResponse(link, parameter, userData);
 }
 
+async function getProfileInfo(userData) {
+  return await loadProfileInfo(userData);
+}
+
 async function getUserSettings(userData) {
   const link = "https://msapi.itstep.org/api/v2/profile/operations/settings";
 
@@ -149,11 +173,11 @@ async function getUserSettings(userData) {
   return await getResponse(link, parameter, userData);
 }
 
-async function createFetchParameter(referrerLink, userData, method = "GET", body = null) {
+async function createFetchParameter(referrerLink, userData, method = "GET", body = null, language = "ru_RU, ru") {
   return {
     "headers": {
       "accept": "application/json, text/plain, */*",
-      "accept-language": "ru_RU, ru",
+      "accept-language": language,
       "authorization": `Bearer ${await updateAccessToken(userData.username, userData.password)}`,
       "sec-fetch-dest": "empty",
       "sec-fetch-mode": "cors",
@@ -264,6 +288,7 @@ async function login(username, password) {
 
 module.exports = {
   getActivity,
+  getAttendance,
   getExams,
   getFutureExams,
   getGroupLeaders,
@@ -272,8 +297,10 @@ module.exports = {
   getNews,
   getNewsDetails,
   getReviews,
+  getVisits,
   getScheduleByDate,
   getStreamLeaders,
   getUserSettings,
+  getProfileInfo,
   loadProfileInfo
 };
