@@ -1,0 +1,16 @@
+{
+  "name": "mystat-api",
+  "version": "1.0.1",
+  "main": "index.js",
+  "author": "ddeenis",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "node-fetch": "^2.6.1",
+    "nodejs": "^0.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DDeenis/mystatAPI"
+  }
+}
