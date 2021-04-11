@@ -12,5 +12,8 @@
     "type": "git",
     "url": "git+https://github.com/DDeenis/mystatAPI"
   },
-  "homepage": "https://github.com/DDeenis/mystatAPI"
+  "homepage": "https://github.com/DDeenis/mystatAPI",
+  "devDependencies": {
+    "eslint": "^7.24.0"
+  }
 }

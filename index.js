@@ -2,6 +2,8 @@
 
 const fetch = require("node-fetch");
 
+let accessToken = '';
+
 async function getMonthSchedule(userData, date = new Date()) {
   const link = `https://msapi.itstep.org/api/v2/schedule/operations/get-month?date_filter=${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
 
@@ -226,7 +228,12 @@ async function updateAccessToken({ username, password }) {
 async function login(username, password) {
   const link = "https://msapi.itstep.org/api/v2/auth/login";
 
-  const body = `{\"application_key\":\"6a56a5df2667e65aab73ce76d1dd737f7d1faef9c52e8b8c55ac75f565d8e8a6\",\"id_city\":null,\"password\":\"${password}\",\"username\":\"${username}\"}`;
+  const body = {
+    application_key: "6a56a5df2667e65aab73ce76d1dd737f7d1faef9c52e8b8c55ac75f565d8e8a6",
+    id_city: null,
+    password: password,
+    username: username
+  };
 
   const parameter = {
     "headers": {
@@ -238,7 +245,7 @@ async function login(username, password) {
       "sec-fetch-mode": "cors",
       "sec-fetch-site": "same-site"
     },
-    "body": body,
+    "body": JSON.stringify(body),
     "method": "POST",
     "mode": "cors"
   };
