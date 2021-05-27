@@ -20,9 +20,31 @@ const createConfig = async (userData, body = null, language = "ru_RU, ru") => {
   };
 }
 
-const getResponse = async (link, config) => (await axiosInstance.get(link, config)).data;
+const getResponse = async (link, config) => {
+  let data = null;
 
-const updateAccessToken = async ({ username, password }) => (await authUser(username, password)).access_token;
+  try {
+    const response = await axiosInstance.get(link, config);
+    data = { data: response.data, success: true };
+  } catch (error) {
+    data = { error: error.response.statusText, success: false };
+  }
+
+  return data;
+}
+
+const updateAccessToken = async ({ username, password }) => {
+  let data = null;
+
+  try {
+    const response = await authUser(username, password);
+    data = response.data?.access_token;
+  } catch (error) {
+    data = { error: error.response.statusText, success: false };
+  }
+
+  return data;
+};
 
 const authUser = async (username, password) => {
   const body = {
@@ -32,7 +54,7 @@ const authUser = async (username, password) => {
     username: username
   };
 
-  return (await axiosInstance.post('auth/login', body)).data;
+  return await axiosInstance.post('auth/login', body);
 }
 
 export async function getMonthSchedule(userData, date = new Date()) {
