@@ -42,8 +42,10 @@ All methods accept object as the first argument:
 
 Return value: 
 ```js
-{ data: [], success: false }
+{ data: [{ id: 1 }], success: true }
+{ error: "Unauthorized", success: false }
 ```
 
-`data` - response from server if success<br>
-`success` - response success status
+`success` - response success status<br>
+`data` - response from server if `success` is true<br>
+`error` - error if `success` is false
