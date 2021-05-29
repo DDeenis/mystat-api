@@ -15,6 +15,16 @@
   },
   "homepage": "https://github.com/DDeenis/mystatAPI",
   "devDependencies": {
-    "eslint": "^7.24.0"
-  }
+    "eslint": "^7.24.0",
+    "mocha": "^8.4.0"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "description": "Library for mystat.itstep.org API for both node and browser",
+  "files": [
+    "index.js",
+    "package.json",
+    "README.md"
+  ]
 }

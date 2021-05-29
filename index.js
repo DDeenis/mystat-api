@@ -22,27 +22,30 @@ const createConfig = async (userData, body = null, language = "ru_RU, ru") => {
   };
 }
 
+const createSuccessResult = (data) => ({ data, error: null, success: true });
+const createErrorResult = (errorMessage) => ({ data: [], error: errorMessage, success: false });
+
 const getResponse = async (link, config) => {
   let data = null;
 
   try {
     const response = await axiosInstance.get(link, config);
-    data = { data: response.data, error: null, success: true };
+    data = createSuccessResult(response.data);
   } catch (error) {
-    data = { data: [], error: error.response.statusText, success: false };
+    data = createErrorResult(error.response.statusText);
   }
 
   return data;
 }
 
 const updateAccessToken = async ({ username, password }) => {
+  const response = await authUser(username, password);
   let data = null;
 
-  try {
-    const response = await authUser(username, password);
+  if(response.success) {
     data = response.data?.access_token;
-  } catch (error) {
-    data = { data: [], error: error.response.statusText, success: false };
+  } else {
+    data = createErrorResult(response.error);
   }
 
   return data;
@@ -56,7 +59,16 @@ export const authUser = async (username, password) => {
     username: username
   };
 
-  return await axiosInstance.post('auth/login', body);
+  let data = null;
+
+  try {
+    const response = await axiosInstance.post('auth/login', body);
+    data = createSuccessResult(response.data);
+  } catch (error) {
+    data = createErrorResult(error.response.statusText);
+  }
+
+  return data;
 }
 
 export async function getMonthSchedule(userData, date = new Date()) {
@@ -95,7 +107,7 @@ export async function getAttendance(userData) {
 }
 
 export async function getHomeworkList(userData, homeworkStatus = 3, page = 1, type = 0) {
-  const profileInfo = await getProfileInfo(userData);
+  const profileInfo = (await getProfileInfo(userData)).data;
 
   const link = `homework/operations/list?page=${page}&status=${homeworkStatus}&type=${type}&group_id=${profileInfo.current_group_id}`;
   const config = await createConfig(userData);
