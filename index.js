@@ -27,9 +27,9 @@ const getResponse = async (link, config) => {
 
   try {
     const response = await axiosInstance.get(link, config);
-    data = { data: response.data, success: true };
+    data = { data: response.data, error: null, success: true };
   } catch (error) {
-    data = { error: error.response.statusText, success: false };
+    data = { data: [], error: error.response.statusText, success: false };
   }
 
   return data;
@@ -42,7 +42,7 @@ const updateAccessToken = async ({ username, password }) => {
     const response = await authUser(username, password);
     data = response.data?.access_token;
   } catch (error) {
-    data = { error: error.response.statusText, success: false };
+    data = { data: [], error: error.response.statusText, success: false };
   }
 
   return data;

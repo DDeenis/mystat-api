@@ -1,7 +1,7 @@
 Library for [mystat](https://mystat.itstep.org) API for both node and browser
 ---
 
-**Methods:**
+## Methods
 - `authUser(username, password)` - login to account
 - `getMonthSchedule(userData, date)` - get schedule for current (or specific) month
     - `date` - specific date (`Date` object)
@@ -42,8 +42,9 @@ All methods accept object as the first argument:
 
 Return value: 
 ```js
-{ data: [{ id: 1 }], success: true }
-{ error: "Unauthorized", success: false }
+{ data: [{ id: 1 }], error: null, success: true }
+
+{ data: [], error: "Unauthorized", success: false }
 ```
 
 `success` - response success status<br>
