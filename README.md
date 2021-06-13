@@ -1,7 +1,43 @@
-Library for [mystat](https://mystat.itstep.org) API for both node and browser
----
 
-## Methods
+# Mystat API
+
+Library for [mystat](https://mystat.itstep.org) API for both node and browser
+
+
+## Installation 
+
+Install my-project with npm
+
+```bash 
+  npm i --save mystat-api
+  
+  or
+
+  yarn add mystat-api
+```
+    
+## Usage/Examples
+
+```javascript
+import { getNews } from 'mystat-api'
+
+const userData = {
+    username: 'MY_USERNAME',
+    password: 'MY_PASSWORD
+}
+
+getNews(userData).then((result) => {
+    if(result.success) {
+        console.log(result.data);
+    } else {
+        console.log(result.error);
+    }
+});
+```
+
+  
+## API Reference
+
 - `authUser(username, password)` - login to account
 - `getMonthSchedule(userData, date)` - get schedule for current (or specific) month
     - `date` - specific date (`Date` object)
@@ -42,11 +78,15 @@ All methods accept object as the first argument:
 
 Return value: 
 ```js
+Success:
 { data: [{ id: 1 }], error: null, success: true }
 
+Error:
 { data: [], error: "Unauthorized", success: false }
 ```
 
 `success` - response success status<br>
 `data` - response from server if `success` is true<br>
 `error` - error if `success` is false
+
+  
