@@ -23,7 +23,7 @@ import { getNews } from 'mystat-api'
 
 const userData = {
     username: 'MY_USERNAME',
-    password: 'MY_PASSWORD
+    password: 'MY_PASSWORD'
 }
 
 getNews(userData).then((result) => {
