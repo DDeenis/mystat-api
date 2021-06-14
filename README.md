@@ -6,8 +6,6 @@ Library for [mystat](https://mystat.itstep.org) API for both node and browser
 
 ## Installation 
 
-Install my-project with npm
-
 ```bash 
   npm i --save mystat-api
   
