@@ -43,7 +43,7 @@ const updateAccessToken = async ({ username, password }) => {
   let data = null;
 
   if(response.success) {
-    data = response.data?.access_token;
+    data = response.data && response.data.access_token;
   } else {
     data = createErrorResult(response.error);
   }
