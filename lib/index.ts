@@ -6,7 +6,7 @@ import {
   MystatHomeworkType,
   MystatResponse,
   MystatUserData,
-} from "./types";
+} from "./types.js";
 
 class MystatAPI {
   userData: MystatUserData;
