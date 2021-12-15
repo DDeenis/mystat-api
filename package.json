@@ -23,7 +23,8 @@
     "typescript": "^4.5.3"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "build": "tsc"
   },
   "description": "Library for mystat.itstep.org API for both node and browser",
   "files": [
