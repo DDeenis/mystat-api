@@ -1,5 +1,6 @@
 "use strict";
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios";
+import jwtDecode from "jwt-decode";
 import {
   MystatHomeworkStatus,
   MystatHomeworkType,
@@ -7,12 +8,14 @@ import {
   MystatUserData,
 } from "./types";
 
-export class MystatAPI {
+class MystatAPI {
   userData: MystatUserData;
   axiosInstance: AxiosInstance;
   baseLanguage: string;
+  accessToken?: string;
+  expiryDate: Date;
 
-  constructor(userData: MystatUserData) {
+  constructor(userData: MystatUserData, language?: string) {
     this.userData = userData;
     this.axiosInstance = axios.create({
       baseURL: "https://msapi.itstep.org/api/v2/",
@@ -23,26 +26,38 @@ export class MystatAPI {
         "sec-fetch-site": "same-site",
       },
     });
-    this.baseLanguage = "ru_RU, ru";
+    this.baseLanguage = language || "ru_RU, ru";
+    this.expiryDate = new Date();
   }
 
   setUserData(userData: MystatUserData) {
     this.userData = userData;
   }
 
-  setLanguage(lang: string) {
-    this.baseLanguage = lang;
+  setLanguage(language: string) {
+    this.baseLanguage = language;
+  }
+
+  isTokenExpired(): boolean {
+    return this.expiryDate.getTime() >= Date.now();
   }
 
   async _createConfig(): Promise<AxiosRequestConfig> {
-    const updateTokenResult = await this.updateAccessToken();
-    const accessToken =
-      typeof updateTokenResult == "string" ? updateTokenResult : "ERROR";
+    if (!this.accessToken || this.isTokenExpired()) {
+      const updateTokenResult = await this.getAccessToken();
+
+      const accessToken =
+        typeof updateTokenResult == "string" ? updateTokenResult : "ERROR";
+
+      this.accessToken = accessToken;
+      const decoded: { exp: string } = jwtDecode(accessToken);
+      this.expiryDate = new Date(decoded.exp);
+    }
 
     return {
       headers: {
         "accept-language": this.baseLanguage,
-        authorization: `Bearer ${accessToken}`,
+        authorization: `Bearer ${this.accessToken}`,
       },
     };
   }
@@ -76,7 +91,7 @@ export class MystatAPI {
     return data;
   }
 
-  async updateAccessToken(): Promise<string | MystatResponse> {
+  async getAccessToken(): Promise<string | MystatResponse> {
     const response = await this.authUser(this.userData);
     let data = null;
 
@@ -89,8 +104,8 @@ export class MystatAPI {
     return data;
   }
 
-  async authUser(userData: MystatUserData) {
-    const { username, password } = userData;
+  async authUser(userData?: MystatUserData): Promise<MystatResponse> {
+    const { username, password } = userData ?? this.userData;
     const body = {
       application_key:
         "6a56a5df2667e65aab73ce76d1dd737f7d1faef9c52e8b8c55ac75f565d8e8a6",
@@ -215,3 +230,5 @@ export class MystatAPI {
     return await this.getResponse(link);
   }
 }
+
+export default MystatAPI;

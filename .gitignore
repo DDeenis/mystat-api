@@ -1,5 +1,6 @@
 /node_modules
+/build
 /test
 tests.js
-.eslintrc.json
 yarn-error.log
+.env

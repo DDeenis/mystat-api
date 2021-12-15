@@ -7,7 +7,8 @@
   "private": false,
   "type": "module",
   "dependencies": {
-    "axios": "^0.21.1"
+    "axios": "^0.21.1",
+    "jwt-decode": "^3.1.2"
   },
   "repository": {
     "type": "git",
@@ -15,8 +16,9 @@
   },
   "homepage": "https://github.com/DDeenis/mystatAPI",
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.6.0",
+    "@typescript-eslint/parser": "^5.6.0",
     "eslint": "^7.24.0",
-    "mocha": "^8.4.0",
     "typescript": "^4.5.3"
   },
   "scripts": {
@@ -24,7 +26,8 @@
   },
   "description": "Library for mystat.itstep.org API for both node and browser",
   "files": [
-    "index.js",
+    "index.ts",
+    "types.ts",
     "package.json",
     "README.md"
   ]
