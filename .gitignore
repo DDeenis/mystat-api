@@ -1,5 +1,5 @@
 /node_modules
-/build
+/dist
 /test
 tests.js
 yarn-error.log

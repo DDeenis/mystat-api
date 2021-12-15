@@ -1,7 +1,8 @@
 {
   "name": "mystat-api",
   "version": "2.1.1",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "author": "ddeenis",
   "license": "MIT",
   "private": false,
@@ -26,8 +27,7 @@
   },
   "description": "Library for mystat.itstep.org API for both node and browser",
   "files": [
-    "index.ts",
-    "types.ts",
+    "dist",
     "package.json",
     "README.md"
   ]
