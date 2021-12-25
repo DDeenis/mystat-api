@@ -1,5 +1,6 @@
 "use strict";
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios";
+import dayjs, { Dayjs } from "dayjs";
 import jwtDecode from "jwt-decode";
 import {
   MystatHomeworkStatus,
@@ -13,7 +14,7 @@ class MystatAPI {
   axiosInstance: AxiosInstance;
   baseLanguage: string;
   accessToken?: string;
-  expiryDate: Date;
+  expiryDate: Dayjs;
 
   constructor(userData: MystatUserData, language?: string) {
     this.userData = userData;
@@ -27,7 +28,7 @@ class MystatAPI {
       },
     });
     this.baseLanguage = language || "ru_RU";
-    this.expiryDate = new Date();
+    this.expiryDate = dayjs();
   }
 
   setUserData(userData: MystatUserData) {
@@ -39,7 +40,7 @@ class MystatAPI {
   }
 
   isTokenExpired(): boolean {
-    return this.expiryDate.getTime() <= Date.now();
+    return this.expiryDate <= dayjs();
   }
 
   async _updateAccessToken() {
@@ -54,16 +55,12 @@ class MystatAPI {
   async _createConfig(): Promise<AxiosRequestConfig> {
     if (!this.accessToken || this.isTokenExpired()) {
       const updateTokenResult = await this.getAccessToken();
-
       const accessToken =
         typeof updateTokenResult == "string" ? updateTokenResult : "ERROR";
-
       this.accessToken = accessToken;
 
       const decoded: { exp: number } = jwtDecode(accessToken);
-      this.expiryDate = new Date(
-        decoded.exp * 1000 + Math.abs(this.expiryDate.getTimezoneOffset())
-      );
+      this.expiryDate = dayjs(decoded.exp * 1000);
     }
 
     return {
