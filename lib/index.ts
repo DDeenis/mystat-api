@@ -26,7 +26,7 @@ class MystatAPI {
         "sec-fetch-site": "same-site",
       },
     });
-    this.baseLanguage = language || "ru_RU, ru";
+    this.baseLanguage = language || "ru_RU";
     this.expiryDate = new Date();
   }
 
@@ -39,7 +39,16 @@ class MystatAPI {
   }
 
   isTokenExpired(): boolean {
-    return this.expiryDate.getTime() >= Date.now();
+    return this.expiryDate.getTime() <= Date.now();
+  }
+
+  async _updateAccessToken() {
+    const updateTokenResult = await this.getAccessToken();
+
+    const accessToken =
+      typeof updateTokenResult == "string" ? updateTokenResult : "ERROR";
+
+    this.accessToken = accessToken;
   }
 
   async _createConfig(): Promise<AxiosRequestConfig> {
@@ -50,8 +59,11 @@ class MystatAPI {
         typeof updateTokenResult == "string" ? updateTokenResult : "ERROR";
 
       this.accessToken = accessToken;
-      const decoded: { exp: string } = jwtDecode(accessToken);
-      this.expiryDate = new Date(decoded.exp);
+
+      const decoded: { exp: number } = jwtDecode(accessToken);
+      this.expiryDate = new Date(
+        decoded.exp * 1000 + Math.abs(this.expiryDate.getTimezoneOffset())
+      );
     }
 
     return {
