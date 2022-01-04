@@ -70,7 +70,7 @@ class MystatAPI {
     };
   }
 
-  createSuccessResult(data: any): MystatResponse {
+  createSuccessResult(data: unknown): MystatResponse {
     return { data, error: null, success: true };
   }
 
@@ -82,17 +82,24 @@ class MystatAPI {
     };
   }
 
-  async getResponse(
+  async makeRequest(
     link: string,
-    config?: AxiosRequestConfig
+    retryOnUnauthorized = true
   ): Promise<MystatResponse> {
     let data = null;
-    const reqConfig = config || (await this._createConfig());
+    const reqConfig = await this._createConfig();
 
     try {
       const response = await this.axiosInstance.get(link, reqConfig);
       data = this.createSuccessResult(response.data);
-    } catch (error) {
+    } catch (errBase) {
+      const error = errBase as AxiosError;
+
+      if (error.response?.status === 401 && retryOnUnauthorized) {
+        await this._updateAccessToken();
+        return this.makeRequest(link, false);
+      }
+
       data = this.createErrorResult((error as AxiosError).response?.statusText);
     }
 
@@ -139,33 +146,29 @@ class MystatAPI {
       date.getMonth() + 1
     }-${date.getDate()}`;
 
-    return await this.getResponse(link);
+    return await this.makeRequest(link);
   }
 
   async getScheduleByDate(date = new Date()) {
     const link = `schedule/operations/get-by-date?date_filter=${date.getFullYear()}-${
       date.getMonth() + 1
     }-${date.getDate()}`;
-
-    return await this.getResponse(link);
+    return await this.makeRequest(link);
   }
 
   async getReviews() {
     const link = "reviews/index/list";
-
-    return await this.getResponse(link);
+    return await this.makeRequest(link);
   }
 
   async getVisits() {
     const link = "progress/operations/student-visits";
-
-    return await this.getResponse(link);
+    return await this.makeRequest(link);
   }
 
   async getAttendance() {
     const link = "dashboard/chart/attendance";
-
-    return await this.getResponse(link);
+    return await this.makeRequest(link);
   }
 
   async getHomeworkList(
@@ -181,61 +184,52 @@ class MystatAPI {
       profileInfo.current_group_id
     }`;
 
-    return await this.getResponse(link);
+    return await this.makeRequest(link);
   }
 
   async getNews() {
     const link = "news/operations/latest-news";
-
-    return await this.getResponse(link);
+    return await this.makeRequest(link);
   }
 
   async getNewsDetails(newsId: string | number) {
     const link = `news/operations/detail-news?news_id=${newsId}`;
-
-    return await this.getResponse(link);
+    return await this.makeRequest(link);
   }
 
   async getExams() {
     const link = "progress/operations/student-exams";
-
-    return await this.getResponse(link);
+    return await this.makeRequest(link);
   }
 
   async getFutureExams() {
     const link = "dashboard/info/future-exams";
-
-    return await this.getResponse(link);
+    return await this.makeRequest(link);
   }
 
   async getStreamLeaders() {
     const link = "dashboard/progress/leader-stream";
-
-    return await this.getResponse(link);
+    return await this.makeRequest(link);
   }
 
   async getGroupLeaders() {
     const link = "dashboard/progress/leader-group";
-
-    return await this.getResponse(link);
+    return await this.makeRequest(link);
   }
 
   async getActivity() {
     const link = "dashboard/progress/activity";
-
-    return await this.getResponse(link);
+    return await this.makeRequest(link);
   }
 
   async getProfileInfo() {
     const link = "settings/user-info";
-
-    return await this.getResponse(link);
+    return await this.makeRequest(link);
   }
 
   async getUserSettings() {
     const link = "profile/operations/settings";
-
-    return await this.getResponse(link);
+    return await this.makeRequest(link);
   }
 }
 
