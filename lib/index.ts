@@ -58,8 +58,12 @@ class MystatAPI {
         typeof updateTokenResult == "string" ? updateTokenResult : "ERROR";
       this.accessToken = accessToken;
 
-      const decoded: { exp: number } = jwtDecode(accessToken);
-      this.expiryDate = new Date(decoded.exp * 1000);
+      try {
+        const decoded: { exp: number } = jwtDecode(accessToken);
+        this.expiryDate = new Date(decoded.exp * 1000);
+      } catch (error) {
+        console.warn("[MYSTAT API] Failed to decode JWT", error);
+      }
     }
 
     return {
