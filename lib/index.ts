@@ -1,6 +1,5 @@
 "use strict";
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios";
-import jwtDecode from "jwt-decode";
 import {
   MystatHomeworkStatus,
   MystatHomeworkType,
@@ -13,7 +12,6 @@ class MystatAPI {
   axiosInstance: AxiosInstance;
   baseLanguage: string;
   accessToken?: string;
-  expiryDate: Date;
 
   constructor(userData: MystatUserData, language?: string) {
     this.userData = userData;
@@ -27,7 +25,6 @@ class MystatAPI {
       },
     });
     this.baseLanguage = language || "ru_RU";
-    this.expiryDate = new Date();
   }
 
   setUserData(userData: MystatUserData) {
@@ -36,10 +33,6 @@ class MystatAPI {
 
   setLanguage(language: string) {
     this.baseLanguage = language;
-  }
-
-  isTokenExpired(): boolean {
-    return this.expiryDate.getTime() <= Date.now();
   }
 
   async _updateAccessToken() {
@@ -52,18 +45,11 @@ class MystatAPI {
   }
 
   async _createConfig(): Promise<AxiosRequestConfig> {
-    if (!this.accessToken || this.isTokenExpired()) {
+    if (!this.accessToken) {
       const updateTokenResult = await this.getAccessToken();
       const accessToken =
         typeof updateTokenResult == "string" ? updateTokenResult : "ERROR";
       this.accessToken = accessToken;
-
-      try {
-        const decoded: { exp: number } = jwtDecode(accessToken);
-        this.expiryDate = new Date(decoded.exp * 1000);
-      } catch (error) {
-        console.warn("[MYSTAT API] Failed to decode JWT", error);
-      }
     }
 
     return {
