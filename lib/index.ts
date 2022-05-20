@@ -1,29 +1,19 @@
-"use strict";
-import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios";
 import {
   MystatHomeworkStatus,
   MystatHomeworkType,
   MystatResponse,
   MystatUserData,
 } from "./types.js";
+import { fetch } from "cross-fetch";
 
 class MystatAPI {
-  userData: MystatUserData;
-  axiosInstance: AxiosInstance;
+  userData?: MystatUserData;
   baseLanguage: string;
   accessToken?: string;
+  _baseUrl = "https://msapi.itstep.org/api/v2/";
 
-  constructor(userData: MystatUserData, language?: string) {
+  constructor(userData?: MystatUserData, language?: string) {
     this.userData = userData;
-    this.axiosInstance = axios.create({
-      baseURL: "https://msapi.itstep.org/api/v2/",
-      headers: {
-        accept: "application/json, text/plain, */*",
-        "sec-fetch-dest": "empty",
-        "sec-fetch-mode": "cors",
-        "sec-fetch-site": "same-site",
-      },
-    });
     this.baseLanguage = language || "ru_RU";
   }
 
@@ -44,7 +34,7 @@ class MystatAPI {
     this.accessToken = accessToken;
   }
 
-  async _createConfig(): Promise<AxiosRequestConfig> {
+  async _createConfig() {
     if (!this.accessToken) {
       const updateTokenResult = await this.getAccessToken();
       const accessToken =
@@ -53,10 +43,8 @@ class MystatAPI {
     }
 
     return {
-      headers: {
-        "accept-language": this.baseLanguage,
-        authorization: `Bearer ${this.accessToken}`,
-      },
+      "accept-language": this.baseLanguage,
+      authorization: `Bearer ${this.accessToken}`,
     };
   }
 
@@ -79,18 +67,20 @@ class MystatAPI {
     let data = null;
     const reqConfig = await this._createConfig();
 
-    try {
-      const response = await this.axiosInstance.get(link, reqConfig);
-      data = this.createSuccessResult(response.data);
-    } catch (errBase) {
-      const error = errBase as AxiosError;
+    const response = await fetch(this._baseUrl + link, {
+      headers: {
+        accept: "application/json",
+        ...reqConfig,
+      },
+    }).then((r) => r.json());
 
-      if (error.response?.status === 401 && retryOnUnauthorized) {
-        await this._updateAccessToken();
-        return this.makeRequest(link, false);
-      }
-
-      data = this.createErrorResult((error as AxiosError).response?.statusText);
+    if (response.status === 401 && retryOnUnauthorized) {
+      await this._updateAccessToken();
+      return this.makeRequest(link, false);
+    } else if (response.code !== 0) {
+      data = this.createSuccessResult(response);
+    } else {
+      data = this.createErrorResult(response.message);
     }
 
     return data;
@@ -101,7 +91,7 @@ class MystatAPI {
     let data = null;
 
     if (response.success) {
-      data = response.data && response.data.access_token;
+      data = response.data.access_token;
     } else {
       data = this.createErrorResult(response.error);
     }
@@ -110,6 +100,8 @@ class MystatAPI {
   }
 
   async authUser(userData?: MystatUserData): Promise<MystatResponse> {
+    if (!userData) throw new Error("No user was provided");
+
     const { username, password } = userData ?? this.userData;
     const body = {
       application_key:
@@ -121,11 +113,19 @@ class MystatAPI {
 
     let data = null;
 
-    try {
-      const response = await this.axiosInstance.post("auth/login", body);
-      data = this.createSuccessResult(response.data);
-    } catch (error) {
-      data = this.createErrorResult((error as AxiosError).response?.statusText);
+    const response = await fetch(this._baseUrl + "auth/login", {
+      method: "POST",
+      body: JSON.stringify(body),
+      headers: {
+        accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    }).then((r) => r.json());
+
+    if (response.code === 0) {
+      data = this.createErrorResult(response.message);
+    } else {
+      data = this.createSuccessResult(response);
     }
 
     return data;
