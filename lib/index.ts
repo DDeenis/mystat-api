@@ -36,10 +36,7 @@ class MystatAPI {
 
   async _createConfig() {
     if (!this.accessToken) {
-      const updateTokenResult = await this.getAccessToken();
-      const accessToken =
-        typeof updateTokenResult == "string" ? updateTokenResult : "ERROR";
-      this.accessToken = accessToken;
+      await this._updateAccessToken();
     }
 
     return {
@@ -113,6 +110,7 @@ class MystatAPI {
 
     let data = null;
 
+    console.log("fetch access token");
     const response = await fetch(this._baseUrl + "auth/login", {
       method: "POST",
       body: JSON.stringify(body),
