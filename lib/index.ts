@@ -166,11 +166,14 @@ class MystatAPI {
   ) {
     const profileInfo = (await this.getProfileInfo()).data;
 
-    const link = `homework/operations/list?page=${page || 1}&status=${
-      homeworkStatus || MystatHomeworkStatus.Active
-    }&type=${type || MystatHomeworkType.Homework}&group_id=${
-      profileInfo.current_group_id
-    }`;
+    const _page = page || 1;
+    const _status =
+      homeworkStatus !== undefined
+        ? homeworkStatus
+        : MystatHomeworkStatus.Active;
+    const _type = type !== undefined ? type : MystatHomeworkType.Homework;
+
+    const link = `homework/operations/list?page=${_page}&status=${_status}&type=${_type}&group_id=${profileInfo.current_group_id}`;
 
     return await this.makeRequest(link);
   }
