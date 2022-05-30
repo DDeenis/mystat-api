@@ -68,7 +68,7 @@ Return value:
 
 ```js
 Success:
-{ data: [{ id: 1 }], error: null, success: true }
+{ data: [{ ... }], error: null, success: true }
 
 Error:
 { data: [], error: "Unauthorized", success: false }
