@@ -110,7 +110,6 @@ class MystatAPI {
 
     let data = null;
 
-    console.log("fetch access token");
     const response = await fetch(this._baseUrl + "auth/login", {
       method: "POST",
       body: JSON.stringify(body),
