@@ -7,12 +7,12 @@ import {
 import { fetch } from "cross-fetch";
 
 class MystatAPI {
-  userData?: MystatUserData;
+  userData: MystatUserData;
   baseLanguage: string;
   accessToken?: string;
   _baseUrl = "https://msapi.itstep.org/api/v2/";
 
-  constructor(userData?: MystatUserData, language?: string) {
+  constructor(userData: MystatUserData, language?: string) {
     this.userData = userData;
     this.baseLanguage = language || "ru_RU";
   }
@@ -97,8 +97,6 @@ class MystatAPI {
   }
 
   async authUser(userData?: MystatUserData): Promise<MystatResponse> {
-    if (!userData) throw new Error("No user was provided");
-
     const { username, password } = userData ?? this.userData;
     const body = {
       application_key:
