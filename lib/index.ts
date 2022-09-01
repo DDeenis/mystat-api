@@ -57,15 +57,14 @@ class MystatAPI {
     };
   }
 
-  async makeRequest(
+  async postRequest(
     link: string,
-    retryOnUnauthorized = true,
-    body?: unknown
+    body?: unknown,
+    retryOnUnauthorized = true
   ): Promise<MystatResponse> {
     let data = null;
     const reqConfig = await this._createConfig();
-
-    const isFormData = body instanceof FormData;
+    const isFormData = body instanceof URLSearchParams;
     const reqBody = body ? (isFormData ? body : JSON.stringify(body)) : null;
 
     const response = await fetch(this._baseUrl + link, {
@@ -74,6 +73,33 @@ class MystatAPI {
         ...reqConfig,
       },
       body: reqBody,
+      method: "POST",
+    }).then((r) => r.json());
+
+    if (response.status === 401 && retryOnUnauthorized) {
+      await this._updateAccessToken();
+      return this.postRequest(link, body, false);
+    } else if (response.code !== 0) {
+      data = createSuccessResult(response);
+    } else {
+      data = createErrorResult(response.message);
+    }
+
+    return data;
+  }
+
+  async makeRequest(
+    link: string,
+    retryOnUnauthorized = true
+  ): Promise<MystatResponse> {
+    let data = null;
+    const reqConfig = await this._createConfig();
+
+    const response = await fetch(this._baseUrl + link, {
+      headers: {
+        accept: "application/json",
+        ...reqConfig,
+      },
     }).then((r) => r.json());
 
     if (response.status === 401 && retryOnUnauthorized) {
@@ -182,20 +208,20 @@ class MystatAPI {
 
   async uploadHomework(
     homeworkId: number,
-    file?: Blob,
+    file?: File,
     answerText?: string,
     spentTimeHour = 99,
     spentTimeMin = 99
   ) {
     const link = "homework/operations/create";
-    const formData = new FormData();
-    formData.set("homeworkId", homeworkId.toString());
-    file && formData.set("file", file);
+    const formData = new URLSearchParams();
+    formData.set("id", homeworkId.toString());
+    file && formData.set("file", await file.text());
     answerText && formData.set("answerText", answerText);
     formData.set("spentTimeHour", spentTimeHour.toString());
     formData.set("spentTimeMin", spentTimeMin.toString());
 
-    return await this.makeRequest(link, true, formData);
+    return await this.postRequest(link, formData, true);
   }
 
   async getNews() {
