@@ -63,6 +63,7 @@ api.getNews().then((result) => {
 - `getActivity()` - get user activity
 - `getProfileInfo()` - get current user profile info
 - `getUserSettings()` - get current user settings
+- `uploadHomework(homeworkId, file, answerText, spentTimeHour, spentTimeMin)` - upload file or comment for specified homework or lab
 
 Return value:
 

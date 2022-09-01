@@ -6,6 +6,18 @@ import {
 } from "./types.js";
 import { fetch } from "cross-fetch";
 
+const createSuccessResult = (data: unknown): MystatResponse => {
+  return { data, error: null, success: true };
+};
+
+const createErrorResult = (errorMessage?: string | null): MystatResponse => {
+  return {
+    data: [],
+    error: errorMessage || "Unknown error",
+    success: false,
+  };
+};
+
 class MystatAPI {
   userData: MystatUserData;
   baseLanguage: string;
@@ -45,39 +57,32 @@ class MystatAPI {
     };
   }
 
-  createSuccessResult(data: unknown): MystatResponse {
-    return { data, error: null, success: true };
-  }
-
-  createErrorResult(errorMessage?: string | null): MystatResponse {
-    return {
-      data: [],
-      error: errorMessage || "Unknown error",
-      success: false,
-    };
-  }
-
   async makeRequest(
     link: string,
-    retryOnUnauthorized = true
+    retryOnUnauthorized = true,
+    body?: unknown
   ): Promise<MystatResponse> {
     let data = null;
     const reqConfig = await this._createConfig();
+
+    const isFormData = body instanceof FormData;
+    const reqBody = body ? (isFormData ? body : JSON.stringify(body)) : null;
 
     const response = await fetch(this._baseUrl + link, {
       headers: {
         accept: "application/json",
         ...reqConfig,
       },
+      body: reqBody,
     }).then((r) => r.json());
 
     if (response.status === 401 && retryOnUnauthorized) {
       await this._updateAccessToken();
       return this.makeRequest(link, false);
     } else if (response.code !== 0) {
-      data = this.createSuccessResult(response);
+      data = createSuccessResult(response);
     } else {
-      data = this.createErrorResult(response.message);
+      data = createErrorResult(response.message);
     }
 
     return data;
@@ -90,7 +95,7 @@ class MystatAPI {
     if (response.success) {
       data = response.data.access_token;
     } else {
-      data = this.createErrorResult(response.error);
+      data = createErrorResult(response.error);
     }
 
     return data;
@@ -118,9 +123,9 @@ class MystatAPI {
     }).then((r) => r.json());
 
     if (response.code === 0) {
-      data = this.createErrorResult(response.message);
+      data = createErrorResult(response.message);
     } else {
-      data = this.createSuccessResult(response);
+      data = createSuccessResult(response);
     }
 
     return data;
@@ -173,6 +178,24 @@ class MystatAPI {
     const link = `homework/operations/list?page=${_page}&status=${_status}&type=${_type}&group_id=${profileInfo.current_group_id}`;
 
     return await this.makeRequest(link);
+  }
+
+  async uploadHomework(
+    homeworkId: number,
+    file?: Blob,
+    answerText?: string,
+    spentTimeHour = 99,
+    spentTimeMin = 99
+  ) {
+    const link = "homework/operations/create";
+    const formData = new FormData();
+    formData.set("homeworkId", homeworkId.toString());
+    file && formData.set("file", file);
+    answerText && formData.set("answerText", answerText);
+    formData.set("spentTimeHour", spentTimeHour.toString());
+    formData.set("spentTimeMin", spentTimeMin.toString());
+
+    return await this.makeRequest(link, true, formData);
   }
 
   async getNews() {
