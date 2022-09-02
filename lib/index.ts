@@ -62,7 +62,7 @@ class MystatAPI {
     body?: unknown,
     retryOnUnauthorized = true
   ): Promise<MystatResponse> {
-    let data = null;
+    let data: MystatResponse | null = null;
     const reqConfig = await this._createConfig();
     const isFormData = body instanceof URLSearchParams;
     const reqBody = body ? (isFormData ? body : JSON.stringify(body)) : null;
@@ -88,7 +88,7 @@ class MystatAPI {
     return data;
   }
 
-  async makeRequest(
+  async getRequest(
     link: string,
     retryOnUnauthorized = true
   ): Promise<MystatResponse> {
@@ -104,7 +104,7 @@ class MystatAPI {
 
     if (response.status === 401 && retryOnUnauthorized) {
       await this._updateAccessToken();
-      return this.makeRequest(link, false);
+      return this.getRequest(link, false);
     } else if (response.code !== 0) {
       data = createSuccessResult(response);
     } else {
@@ -157,34 +157,34 @@ class MystatAPI {
     return data;
   }
 
-  async getMonthSchedule(date = new Date()) {
+  getMonthSchedule(date = new Date()) {
     const link = `schedule/operations/get-month?date_filter=${date.getFullYear()}-${
       date.getMonth() + 1
     }-${date.getDate()}`;
 
-    return await this.makeRequest(link);
+    return this.getRequest(link);
   }
 
-  async getScheduleByDate(date = new Date()) {
+  getScheduleByDate(date = new Date()) {
     const link = `schedule/operations/get-by-date?date_filter=${date.getFullYear()}-${
       date.getMonth() + 1
     }-${date.getDate()}`;
-    return await this.makeRequest(link);
+    return this.getRequest(link);
   }
 
-  async getReviews() {
+  getReviews() {
     const link = "reviews/index/list";
-    return await this.makeRequest(link);
+    return this.getRequest(link);
   }
 
-  async getVisits() {
+  getVisits() {
     const link = "progress/operations/student-visits";
-    return await this.makeRequest(link);
+    return this.getRequest(link);
   }
 
-  async getAttendance() {
+  getAttendance() {
     const link = "dashboard/chart/attendance";
-    return await this.makeRequest(link);
+    return this.getRequest(link);
   }
 
   async getHomeworkList(
@@ -203,12 +203,12 @@ class MystatAPI {
 
     const link = `homework/operations/list?page=${_page}&status=${_status}&type=${_type}&group_id=${profileInfo.current_group_id}`;
 
-    return await this.makeRequest(link);
+    return this.getRequest(link);
   }
 
   async uploadHomework(
     homeworkId: number,
-    file?: File,
+    file?: any,
     answerText?: string,
     spentTimeHour = 99,
     spentTimeMin = 99
@@ -216,57 +216,59 @@ class MystatAPI {
     const link = "homework/operations/create";
     const formData = new URLSearchParams();
     formData.set("id", homeworkId.toString());
-    file && formData.set("file", await file.text());
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    file && formData.set("file", file);
     answerText && formData.set("answerText", answerText);
     formData.set("spentTimeHour", spentTimeHour.toString());
     formData.set("spentTimeMin", spentTimeMin.toString());
 
-    return await this.postRequest(link, formData, true);
+    return this.postRequest(link, formData, true);
   }
 
-  async getNews() {
+  getNews() {
     const link = "news/operations/latest-news";
-    return await this.makeRequest(link);
+    return this.getRequest(link);
   }
 
-  async getNewsDetails(newsId: string | number) {
+  getNewsDetails(newsId: string | number) {
     const link = `news/operations/detail-news?news_id=${newsId}`;
-    return await this.makeRequest(link);
+    return this.getRequest(link);
   }
 
-  async getExams() {
+  getExams() {
     const link = "progress/operations/student-exams";
-    return await this.makeRequest(link);
+    return this.getRequest(link);
   }
 
-  async getFutureExams() {
+  getFutureExams() {
     const link = "dashboard/info/future-exams";
-    return await this.makeRequest(link);
+    return this.getRequest(link);
   }
 
-  async getStreamLeaders() {
+  getStreamLeaders() {
     const link = "dashboard/progress/leader-stream";
-    return await this.makeRequest(link);
+    return this.getRequest(link);
   }
 
-  async getGroupLeaders() {
+  getGroupLeaders() {
     const link = "dashboard/progress/leader-group";
-    return await this.makeRequest(link);
+    return this.getRequest(link);
   }
 
-  async getActivity() {
+  getActivity() {
     const link = "dashboard/progress/activity";
-    return await this.makeRequest(link);
+    return this.getRequest(link);
   }
 
-  async getProfileInfo() {
+  getProfileInfo() {
     const link = "settings/user-info";
-    return await this.makeRequest(link);
+    return this.getRequest(link);
   }
 
-  async getUserSettings() {
+  getUserSettings() {
     const link = "profile/operations/settings";
-    return await this.makeRequest(link);
+    return this.getRequest(link);
   }
 }
 
