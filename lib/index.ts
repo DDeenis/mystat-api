@@ -206,7 +206,7 @@ class MystatAPI {
     return this.getRequest(link);
   }
 
-  async uploadHomework(
+  uploadHomework(
     homeworkId: number,
     answerText: string,
     spentTimeHour = 99,
@@ -219,7 +219,15 @@ class MystatAPI {
     formData.set("spentTimeHour", spentTimeHour.toString());
     formData.set("spentTimeMin", spentTimeMin.toString());
 
-    return this.postRequest(link, formData, true);
+    return this.postRequest(link, formData);
+  }
+
+  deleteHomework(homeworkId: number) {
+    const link = "homework/operations/delete";
+    const body = {
+      id: homeworkId,
+    };
+    return this.postRequest(link, body);
   }
 
   getNews() {
@@ -227,7 +235,7 @@ class MystatAPI {
     return this.getRequest(link);
   }
 
-  getNewsDetails(newsId: string | number) {
+  getNewsDetails(newsId: number) {
     const link = `news/operations/detail-news?news_id=${newsId}`;
     return this.getRequest(link);
   }
