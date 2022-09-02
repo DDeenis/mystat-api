@@ -208,18 +208,14 @@ class MystatAPI {
 
   async uploadHomework(
     homeworkId: number,
-    file?: any,
-    answerText?: string,
+    answerText: string,
     spentTimeHour = 99,
     spentTimeMin = 99
   ) {
     const link = "homework/operations/create";
     const formData = new URLSearchParams();
     formData.set("id", homeworkId.toString());
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    file && formData.set("file", file);
-    answerText && formData.set("answerText", answerText);
+    formData.set("answerText", answerText);
     formData.set("spentTimeHour", spentTimeHour.toString());
     formData.set("spentTimeMin", spentTimeMin.toString());
 
