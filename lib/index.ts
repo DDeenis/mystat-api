@@ -59,22 +59,25 @@ class MystatAPI {
 
   async postRequest(
     link: string,
-    body?: unknown,
+    body?: FormData | string,
     retryOnUnauthorized = true
   ): Promise<MystatResponse> {
     let data: MystatResponse | null = null;
     const reqConfig = await this._createConfig();
-    const isFormData = body instanceof URLSearchParams;
-    const reqBody = body ? (isFormData ? body : JSON.stringify(body)) : null;
+    const contentType =
+      typeof body === "string" ? "application/json" : "multipart/form-data";
 
     const response = await fetch(this._baseUrl + link, {
       headers: {
         accept: "application/json",
         ...reqConfig,
+        "content-type": contentType,
       },
-      body: reqBody,
+      body,
       method: "POST",
-    }).then((r) => r.json());
+    })
+      .then((r) => r.text())
+      .then((r) => (r ? JSON.parse(r) : { status: 204, code: 1 }));
 
     if (response.status === 401 && retryOnUnauthorized) {
       await this._updateAccessToken();
@@ -224,9 +227,9 @@ class MystatAPI {
 
   deleteHomework(homeworkId: number) {
     const link = "homework/operations/delete";
-    const body = {
+    const body = JSON.stringify({
       id: homeworkId,
-    };
+    });
     return this.postRequest(link, body);
   }
 
