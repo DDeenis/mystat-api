@@ -1,6 +1,6 @@
 {
   "name": "mystat-api",
-  "version": "3.0.18",
+  "version": "3.0.19",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "author": "ddeenis",
