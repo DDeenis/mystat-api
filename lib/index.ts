@@ -64,15 +64,16 @@ class MystatAPI {
   ): Promise<MystatResponse> {
     let data: MystatResponse | null = null;
     const reqConfig = await this._createConfig();
-    const contentType =
-      typeof body === "string" ? "application/json" : "multipart/form-data";
+    const isJson = typeof body === "string";
+
+    const headers: HeadersInit = { accept: "application/json", ...reqConfig };
+
+    if (isJson) {
+      headers["content-type"] = "application/json";
+    }
 
     const response = await fetch(this._baseUrl + link, {
-      headers: {
-        accept: "application/json",
-        ...reqConfig,
-        "content-type": contentType,
-      },
+      headers,
       body,
       method: "POST",
     })
