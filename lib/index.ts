@@ -199,7 +199,7 @@ class MystatAPI {
     const link = `schedule/operations/get-by-date?date_filter=${date.getFullYear()}-${
       date.getMonth() + 1
     }-${date.getDate()}`;
-    return this.getRequest<MystatScheduleEntry>(link);
+    return this.getRequest<MystatScheduleEntry[]>(link);
   }
 
   getReviews() {
