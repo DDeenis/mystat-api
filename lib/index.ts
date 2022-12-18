@@ -1,18 +1,37 @@
 import {
+  MystatActivityEntry,
+  MystatAttendanceEntry,
+  MystatAuthError,
+  MystatAuthSuccess,
+  MystatExam,
+  MystatGroupInfo,
+  MystatHomework,
+  MystatHomeworkCount,
   MystatHomeworkStatus,
   MystatHomeworkType,
+  MystatLessonVisit,
+  MystatNewsDetails,
+  MystatNewsEntry,
+  MystatProfileInfo,
+  MystatProfileSettings,
   MystatResponse,
+  MystatReview,
+  MystatScheduleEntry,
+  MystatStudentInfo,
+  MystatUploadedHomework,
   MystatUserData,
 } from "./types.js";
 import { fetch } from "cross-fetch";
 
-const createSuccessResult = (data: unknown): MystatResponse => {
+const createSuccessResult = <T>(data: T): MystatResponse<T> => {
   return { data, error: null, success: true };
 };
 
-const createErrorResult = (errorMessage?: string | null): MystatResponse => {
+const createErrorResult = (
+  errorMessage?: string | null
+): MystatResponse<null> => {
   return {
-    data: [],
+    data: null,
     error: errorMessage || "Unknown error",
     success: false,
   };
@@ -26,7 +45,7 @@ class MystatAPI {
 
   constructor(userData: MystatUserData, language?: string) {
     this.userData = userData;
-    this.baseLanguage = language || "ru_RU";
+    this.baseLanguage = language || "ru";
   }
 
   setUserData(userData: MystatUserData) {
@@ -40,8 +59,9 @@ class MystatAPI {
   async _updateAccessToken() {
     const updateTokenResult = await this.getAccessToken();
 
-    const accessToken =
-      typeof updateTokenResult == "string" ? updateTokenResult : "ERROR";
+    const accessToken = updateTokenResult.success
+      ? (updateTokenResult.data as string)
+      : "ERROR";
 
     this.accessToken = accessToken;
   }
@@ -52,17 +72,17 @@ class MystatAPI {
     }
 
     return {
-      "accept-language": this.baseLanguage,
+      "x-language": this.baseLanguage,
       authorization: `Bearer ${this.accessToken}`,
     };
   }
 
-  async postRequest(
+  async postRequest<T>(
     link: string,
     body?: FormData | string,
     retryOnUnauthorized = true
-  ): Promise<MystatResponse> {
-    let data: MystatResponse | null = null;
+  ): Promise<MystatResponse<T> | MystatResponse<null>> {
+    let data: MystatResponse<T> | MystatResponse<null> = createErrorResult();
     const reqConfig = await this._createConfig();
     const isJson = typeof body === "string";
 
@@ -92,10 +112,10 @@ class MystatAPI {
     return data;
   }
 
-  async getRequest(
+  async getRequest<T>(
     link: string,
     retryOnUnauthorized = true
-  ): Promise<MystatResponse> {
+  ): Promise<MystatResponse<T>> {
     let data = null;
     const reqConfig = await this._createConfig();
 
@@ -118,12 +138,14 @@ class MystatAPI {
     return data;
   }
 
-  async getAccessToken(): Promise<string | MystatResponse> {
+  async getAccessToken(): Promise<
+    MystatResponse<string> | MystatResponse<null>
+  > {
     const response = await this.authUser(this.userData);
     let data = null;
 
-    if (response.success) {
-      data = response.data.access_token;
+    if (response.success && "access_token" in response.data) {
+      data = createSuccessResult(response.data.access_token);
     } else {
       data = createErrorResult(response.error);
     }
@@ -131,7 +153,11 @@ class MystatAPI {
     return data;
   }
 
-  async authUser(userData?: MystatUserData): Promise<MystatResponse> {
+  async authUser(
+    userData?: MystatUserData
+  ): Promise<
+    MystatResponse<MystatAuthSuccess> | MystatResponse<MystatAuthError>
+  > {
     const { username, password } = userData ?? this.userData;
     const body = {
       application_key:
@@ -166,29 +192,29 @@ class MystatAPI {
       date.getMonth() + 1
     }-${date.getDate()}`;
 
-    return this.getRequest(link);
+    return this.getRequest<MystatScheduleEntry[]>(link);
   }
 
   getScheduleByDate(date = new Date()) {
     const link = `schedule/operations/get-by-date?date_filter=${date.getFullYear()}-${
       date.getMonth() + 1
     }-${date.getDate()}`;
-    return this.getRequest(link);
+    return this.getRequest<MystatScheduleEntry>(link);
   }
 
   getReviews() {
     const link = "reviews/index/list";
-    return this.getRequest(link);
+    return this.getRequest<MystatReview[]>(link);
   }
 
   getVisits() {
     const link = "progress/operations/student-visits";
-    return this.getRequest(link);
+    return this.getRequest<MystatLessonVisit[]>(link);
   }
 
   getAttendance() {
     const link = "dashboard/chart/attendance";
-    return this.getRequest(link);
+    return this.getRequest<MystatAttendanceEntry[]>(link);
   }
 
   async getHomeworkList(
@@ -207,7 +233,7 @@ class MystatAPI {
 
     const link = `homework/operations/list?page=${_page}&status=${_status}&type=${_type}&group_id=${profileInfo.current_group_id}`;
 
-    return this.getRequest(link);
+    return this.getRequest<MystatHomework[]>(link);
   }
 
   uploadHomework(
@@ -223,7 +249,7 @@ class MystatAPI {
     formData.set("spentTimeHour", spentTimeHour.toString());
     formData.set("spentTimeMin", spentTimeMin.toString());
 
-    return this.postRequest(link, formData);
+    return this.postRequest<MystatUploadedHomework>(link, formData);
   }
 
   deleteHomework(homeworkId: number) {
@@ -231,52 +257,62 @@ class MystatAPI {
     const body = JSON.stringify({
       id: homeworkId,
     });
-    return this.postRequest(link, body);
+    return this.postRequest<boolean>(link, body);
   }
 
   getNews() {
     const link = "news/operations/latest-news";
-    return this.getRequest(link);
+    return this.getRequest<MystatNewsEntry[]>(link);
   }
 
   getNewsDetails(newsId: number) {
     const link = `news/operations/detail-news?news_id=${newsId}`;
-    return this.getRequest(link);
+    return this.getRequest<MystatNewsDetails>(link);
   }
 
   getExams() {
     const link = "progress/operations/student-exams";
-    return this.getRequest(link);
+    return this.getRequest<MystatExam[]>(link);
   }
 
   getFutureExams() {
     const link = "dashboard/info/future-exams";
-    return this.getRequest(link);
+    return this.getRequest<MystatExam[]>(link);
   }
 
   getStreamLeaders() {
     const link = "dashboard/progress/leader-stream";
-    return this.getRequest(link);
+    return this.getRequest<MystatStudentInfo[]>(link);
   }
 
   getGroupLeaders() {
     const link = "dashboard/progress/leader-group";
-    return this.getRequest(link);
+    return this.getRequest<MystatStudentInfo[]>(link);
   }
 
   getActivity() {
     const link = "dashboard/progress/activity";
-    return this.getRequest(link);
+    return this.getRequest<MystatActivityEntry[]>(link);
   }
 
   getProfileInfo() {
     const link = "settings/user-info";
-    return this.getRequest(link);
+    return this.getRequest<MystatProfileInfo>(link);
   }
 
   getUserSettings() {
     const link = "profile/operations/settings";
-    return this.getRequest(link);
+    return this.getRequest<MystatProfileSettings>(link);
+  }
+
+  getGroupInfo() {
+    const link = "homework/settings/group-history";
+    return this.getRequest<MystatGroupInfo[]>(link);
+  }
+
+  getHomeworkCount() {
+    const link = "count/homework";
+    return this.getRequest<MystatHomeworkCount[]>(link);
   }
 }
 
