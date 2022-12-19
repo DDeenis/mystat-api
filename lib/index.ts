@@ -156,7 +156,7 @@ class MystatAPI {
   async authUser(
     userData?: MystatUserData
   ): Promise<
-    MystatResponse<MystatAuthSuccess> | MystatResponse<MystatAuthError>
+    MystatResponse<MystatAuthSuccess> | MystatResponse<MystatAuthError[]>
   > {
     const { username, password } = userData ?? this.userData;
     const body = {
