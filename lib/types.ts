@@ -223,6 +223,11 @@ export interface MystatStudentInfo {
   photo_path: string;
 }
 
+export interface MystatActivityLog {
+  activity_log: MystatActivityEntry[];
+  date: string;
+}
+
 export interface MystatActivityEntry {
   achievements_id: number;
   achievements_type: number;

@@ -1,5 +1,5 @@
-import {
-  MystatActivityEntry,
+import type {
+  MystatActivityLog,
   MystatAttendanceEntry,
   MystatAuthError,
   MystatAuthSuccess,
@@ -7,8 +7,6 @@ import {
   MystatGroupInfo,
   MystatHomework,
   MystatHomeworkCount,
-  MystatHomeworkStatus,
-  MystatHomeworkType,
   MystatLessonVisit,
   MystatNewsDetails,
   MystatNewsEntry,
@@ -21,6 +19,7 @@ import {
   MystatUploadedHomework,
   MystatUserData,
 } from "./types.js";
+import { MystatHomeworkType, MystatHomeworkStatus } from "./types.js";
 import { fetch } from "cross-fetch";
 
 const createSuccessResult = <T>(data: T): MystatResponse<T> => {
@@ -292,7 +291,7 @@ class MystatAPI {
 
   getActivity() {
     const link = "dashboard/progress/activity";
-    return this.getRequest<MystatActivityEntry[]>(link);
+    return this.getRequest<MystatActivityLog[]>(link);
   }
 
   getProfileInfo() {
