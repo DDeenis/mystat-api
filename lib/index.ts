@@ -1,5 +1,6 @@
 import type {
   MystatActivityLog,
+  MystatActivityEntry,
   MystatAttendanceEntry,
   MystatAuthError,
   MystatAuthSuccess,
@@ -291,6 +292,11 @@ class MystatAPI {
 
   getActivity() {
     const link = "dashboard/progress/activity";
+    return this.getRequest<MystatActivityEntry[]>(link);
+  }
+
+  getActivityLog() {
+    const link = "dashboard/progress/activity-web";
     return this.getRequest<MystatActivityLog[]>(link);
   }
 
