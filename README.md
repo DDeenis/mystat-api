@@ -1,40 +1,38 @@
 # Mystat API
 
-Library for [mystat](https://mystat.itstep.org) API for both node and browser
+Library for [mystat](https://mystat.itstep.org) API for both Node.js and browser\
+Requires minimum Node.js 18.x (for Node.js)
 
 ## Installation
 
 ```bash
-  npm i --save mystat-api
-
-  or
+  npm i mystat-api
 
   yarn add mystat-api
+
+  pnpm add mystat-api
 ```
 
 ## Usage/Examples
 
-```javascript
-import MystatAPI from "mystat-api";
+```js
+import { createClient } from "mystat-api";
 
-const userData = {
-  username: "MY_USERNAME",
-  password: "MY_PASSWORD",
-};
-const api = new MystatAPI(userData);
-
-api.getNews().then((result) => {
-  if (result.success) {
-    console.log(result.data);
-  } else {
-    console.log(result.error);
-  }
+const api = await createClient({
+  loginData: {
+    username: "MY_USERNAME",
+    password: "MY_PASSWORD",
+  },
+  language: "en",
 });
+
+const userInfo = await api.getUserInfo();
+console.log(userInfo);
 ```
 
 ## API Reference
 
-- `authUser(userData?)` - login to account
+- `authUser(userData);` - login to account
 - `getMonthSchedule(date)` - get schedule for current (or specific) month
   - `date` - specific date (`Date` object)
 - `getScheduleByDate(date)` - get schedule for current (or specific) day
@@ -53,28 +51,15 @@ api.getNews().then((result) => {
   - `type`
     - `0` - homework
     - `1` - lab
-- `getNews()` - get news
+- `getLatestNews()` - get news
 - `getNewsDetails(, newsId)` - get specific news info
   - `newsId` - news id
-- `getExams()` - get exams
+- `getAllExams()` - get exams
 - `getFutureExams()` - get future exams
 - `getStreamLeaders()` - get stream leaders (of current user stream)
 - `getGroupLeaders()` - get group leaders (of current user group)
 - `getActivity()` - get user activity
 - `getProfileInfo()` - get current user profile info
 - `getUserSettings()` - get current user settings
-- `uploadHomework(homeworkId, answerText, spentTimeHour, spentTimeMin)` - upload file or comment for specified homework or lab
-
-Return value:
-
-```js
-Success:
-{ data: [{ ... }, ...], error: null, success: true }
-
-Error:
-{ data: [], error: "Unauthorized", success: false }
-```
-
-`success` - response success status<br>
-`data` - response from server if `success` is true<br>
-`error` - error if `success` is false
+- `uploadHomework({homeworkId, answerText, file, spentTimeHour, spentTimeMin})` - upload file or comment for specified homework or lab
+- `deleteHomework(homeworkId)` - delete uploaded homework

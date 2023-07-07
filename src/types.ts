@@ -1,20 +1,14 @@
-export interface MystatUserData {
+export interface LoginData {
   username: string;
   password: string;
 }
 
-export interface MystatResponse<T> {
-  success: boolean;
-  error?: string | null;
-  data: T;
-}
-
-export enum MystatHomeworkType {
+export enum HomeworkType {
   Homework,
   Lab,
 }
 
-export enum MystatHomeworkStatus {
+export enum HomeworkStatus {
   Overdue,
   Checked,
   Uploaded,
@@ -22,7 +16,7 @@ export enum MystatHomeworkStatus {
   Deleted = 5,
 }
 
-export interface MystatAuthSuccess {
+export interface AuthResponse {
   access_token: string;
   refresh_token: string;
   expires_in_access: number;
@@ -39,12 +33,12 @@ export interface MystatAuthSuccess {
   };
 }
 
-export interface MystatAuthError {
+export interface AuthError {
   field: string;
   message: string;
 }
 
-export interface MystatScheduleEntry {
+export interface ScheduleEntry {
   date: string;
   started_at: string;
   finished_at: string;
@@ -54,7 +48,7 @@ export interface MystatScheduleEntry {
   lesson: number;
 }
 
-export interface MystatProfileInfo {
+export interface UserInfo {
   student_id: number;
   current_group_id: number;
   current_group_status: number;
@@ -65,7 +59,7 @@ export interface MystatProfileInfo {
   group_name: string;
   photo: string;
   stream_name: string;
-  groups: MystatGroup;
+  groups: Group;
   visibility: {
     is_birthday: boolean;
     is_debtor: boolean;
@@ -84,38 +78,38 @@ export interface MystatProfileInfo {
     is_test: boolean;
     is_vacancy: boolean;
   };
-  gaming_points: [MystatGamingPoint, MystatGamingPoint];
+  gaming_points: [GamingPoint, GamingPoint];
 }
 
-interface MystatGamingPoint {
-  new_gaming_point_types__id: MystatGamingPointTypes;
+interface GamingPoint {
+  new_gaming_point_types__id: GamingPointTypes;
   points: number;
 }
 
-export enum MystatGamingPointTypes {
+export enum GamingPointTypes {
   Gems = 1,
   Coins,
 }
 
-export interface MystatGroup {
+export interface Group {
   id: number;
   group_status: number;
   name: string;
   is_primary: boolean;
 }
 
-export interface MystatGroupInfo {
+export interface GroupInfo {
   id: number;
-  specs: MystatGroupSpec[];
+  specs: GroupSpec[];
 }
 
-interface MystatGroupSpec {
+interface GroupSpec {
   id: number;
   name: string;
   short_name: string;
 }
 
-export interface MystatReview {
+export interface Review {
   date: string;
   full_spec: string;
   message: string;
@@ -123,7 +117,7 @@ export interface MystatReview {
   teacher: string;
 }
 
-export interface MystatLessonVisit {
+export interface LessonVisit {
   spec_id: number;
   lesson_number: number;
   status_was: number;
@@ -137,14 +131,14 @@ export interface MystatLessonVisit {
   teacher_name: string;
 }
 
-export interface MystatAttendanceEntry {
+export interface AttendanceEntry {
   date: string;
   has_rasp: boolean;
   points?: number;
   previous_points?: number;
 }
 
-export interface MystatHomework {
+export interface Homework {
   id: number;
   id_group: number;
   id_spec: number;
@@ -165,11 +159,11 @@ export interface MystatHomework {
     attachment_path?: string;
     date_updated: string;
   };
-  homework_stud: MystatUploadedHomework;
-  status: MystatHomeworkStatus;
+  homework_stud: UploadedHomework;
+  status: HomeworkStatus;
 }
 
-export interface MystatUploadedHomework {
+export interface UploadedHomework {
   id: number;
   mark?: number;
   creation_time: string;
@@ -180,18 +174,18 @@ export interface MystatUploadedHomework {
   auto_mark: boolean;
 }
 
-export interface MystatHomeworkCount {
-  counter_type: MystatHomeworkStatus;
+export interface HomeworkCount {
+  counter_type: HomeworkStatus;
   counter: number;
 }
 
-export interface MystatNewsEntry {
+export interface NewsEntry {
   id_bbs: number;
   theme: string;
   time: string;
 }
 
-export interface MystatNewsDetails {
+export interface NewsDetails {
   id_bbs: number;
   is_viewed: boolean;
   text_bbs: string;
@@ -199,7 +193,7 @@ export interface MystatNewsDetails {
   time: string;
 }
 
-export interface MystatExam {
+export interface Exam {
   exam_id: number;
   id_file: number;
   mark: number;
@@ -215,7 +209,7 @@ export interface MystatExam {
   need_access_stud?: boolean;
 }
 
-export interface MystatStudentInfo {
+export interface StudentInfo {
   id: number;
   position: number;
   amount: number;
@@ -223,12 +217,12 @@ export interface MystatStudentInfo {
   photo_path: string;
 }
 
-export interface MystatActivityLog {
-  activity_log: MystatActivityEntry[];
+export interface ActivityLog {
+  activity_log: ActivityEntry[];
   date: string;
 }
 
-export interface MystatActivityEntry {
+export interface ActivityEntry {
   achievements_id: number;
   achievements_type: number;
   action: number;
@@ -237,25 +231,25 @@ export interface MystatActivityEntry {
   point_types_id: number;
   subject_mark?: number;
   date: string;
-  achievements_name: MystatAchievementNames;
-  point_types_name: MystatPointTypesNames;
+  achievements_name: AchievementNames;
+  point_types_name: PointTypesNames;
   subject_name?: string;
   old_competition: boolean;
 }
 
-export enum MystatAchievementNames {
+export enum AchievementNames {
   LessonRate = "EVALUATION_LESSON_MARK",
   PairVisit = "PAIR_VISIT",
   Assesment = "ASSESMENT",
   HomeworkCompleted = "HOMETASK_INTIME",
 }
 
-export enum MystatPointTypesNames {
+export enum PointTypesNames {
   Diamond = "DIAMOND",
   Coin = "COIN",
 }
 
-export interface MystatProfileSettings {
+export interface UserSettings {
   id: number;
   fill_percentage: number;
   form_type: number;
