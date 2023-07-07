@@ -24,10 +24,12 @@ import {
 
 const baseUrl = "https://msapi.itstep.org/api/v2";
 
+type CacheType = "default" | "no-store" | "reload" | "no-cache" | "force-cache";
+
 interface ClientConfig {
   loginData: LoginData;
   language?: string;
-  cache?: boolean;
+  cache?: CacheType;
   accessToken?: string;
   tokenExpiresAt?: number;
   groupId?: number;
@@ -36,7 +38,7 @@ interface ClientConfig {
 interface ClientData {
   loginData: LoginData;
   language?: string;
-  cache?: boolean;
+  cache?: CacheType;
   accessToken: string;
   tokenExpiresAt: number;
   groupId?: number;
@@ -67,7 +69,7 @@ const formatDate = (date: Date) =>
   `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
 
 export const createClient = async (config: ClientConfig) => {
-  const authUser = async (loginData: LoginData, cache = true) => {
+  const authUser = async (loginData: LoginData) => {
     const body = {
       application_key:
         "6a56a5df2667e65aab73ce76d1dd737f7d1faef9c52e8b8c55ac75f565d8e8a6",
@@ -84,7 +86,6 @@ export const createClient = async (config: ClientConfig) => {
           accept: "application/json",
           "Content-Type": "application/json",
         },
-        cache: cache ? "force-cache" : "no-cache",
       }
     ).then((r) => r.json());
 
@@ -125,7 +126,7 @@ export const createClient = async (config: ClientConfig) => {
 
   const isTokenExpired = () => Date.now() >= clientData.tokenExpiresAt;
 
-  const get = async <T>(path: string) => {
+  const get = async <T>(path: string, retry = true): Promise<T | undefined> => {
     if (isTokenExpired()) {
       await updateToken();
     }
@@ -136,14 +137,19 @@ export const createClient = async (config: ClientConfig) => {
         authorization: `Bearer ${clientData.accessToken}`,
         accept: "application/json",
       },
-      cache: clientData.cache ? "force-cache" : "no-cache",
+      cache: clientData.cache,
     });
 
     if (res.status === 401) {
-      throw "Access token has expired";
+      if (retry) {
+        await updateToken();
+        return get<T>(path, false);
+      }
+
+      throw "Unauthorized";
     }
 
-    return (await res.json()) as T | undefined;
+    return await res.json();
   };
 
   const getUserInfo = () => {
