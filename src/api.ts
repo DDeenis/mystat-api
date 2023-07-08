@@ -33,6 +33,7 @@ interface ClientConfig {
   accessToken?: string;
   tokenExpiresAt?: number;
   groupId?: number;
+  onUnauthorized?: (path: string) => void;
 }
 
 interface ClientData {
@@ -141,12 +142,17 @@ export const createClient = async (config: ClientConfig) => {
     });
 
     if (res.status === 401) {
+      if (config.onUnauthorized) {
+        config.onUnauthorized(path);
+        return;
+      }
+
       if (retry) {
         await updateToken();
         return get<T>(path, false);
       }
 
-      throw "Unauthorized";
+      throw "Access token is expired or invalid";
     }
 
     return await res.json();
