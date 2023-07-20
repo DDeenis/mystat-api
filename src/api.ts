@@ -206,9 +206,9 @@ export const createClient = async (config: ClientConfig) => {
     status = HomeworkStatus.Active,
     type = HomeworkType.Homework,
   }: {
-    page: number;
+    page?: number;
+    type?: HomeworkType;
     status: HomeworkStatus;
-    type: HomeworkType;
   }) => {
     if (!clientData.groupId) {
       const info = await getUserInfo();
