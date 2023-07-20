@@ -26,7 +26,7 @@ const baseUrl = "https://msapi.itstep.org/api/v2";
 
 type CacheType = "default" | "no-store" | "reload" | "no-cache" | "force-cache";
 
-interface ClientConfig {
+export interface ClientConfig {
   loginData: LoginData;
   language?: string;
   cache?: CacheType;
@@ -36,7 +36,7 @@ interface ClientConfig {
   onUnauthorized?: (path: string) => void;
 }
 
-interface ClientData {
+export interface ClientData {
   loginData: LoginData;
   language?: string;
   cache?: CacheType;
@@ -68,6 +68,10 @@ type UploadHomeworkParams =
 
 const formatDate = (date: Date) =>
   `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+
+export function isTokenExpired(apiClientData: ClientData) {
+  return Date.now() >= apiClientData.tokenExpiresAt;
+}
 
 export const createClient = async (config: ClientConfig) => {
   const authUser = async (loginData: LoginData) => {
@@ -197,11 +201,15 @@ export const createClient = async (config: ClientConfig) => {
     return get<AttendanceEntry[]>(link);
   };
 
-  const getHomeworkList = async (
+  const getHomeworkList = async ({
     page = 1,
     status = HomeworkStatus.Active,
-    type = HomeworkType.Homework
-  ) => {
+    type = HomeworkType.Homework,
+  }: {
+    page: number;
+    status: HomeworkStatus;
+    type: HomeworkType;
+  }) => {
     if (!clientData.groupId) {
       const info = await getUserInfo();
       if (!info) throw "Unable to get user group id";
@@ -346,5 +354,6 @@ export const createClient = async (config: ClientConfig) => {
     getHomeworkCount,
     uploadHomework,
     deleteHomework,
+    isTokenExpired,
   };
 };
