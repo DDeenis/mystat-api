@@ -276,8 +276,10 @@ export const createClient = async (config: ClientConfig) => {
     const formData = new FormData();
 
     formData.set("id", params.homeworkId.toString());
-    "answerText" in params && formData.set("answerText", params.answerText);
-    "file" in params && formData.set("file", params.file, params.file.name);
+    if ("answerText" in params && params.answerText)
+      formData.set("answerText", params.answerText);
+    if ("file" in params && params.file)
+      formData.set("file", params.file, params.file.name);
     formData.set("spentTimeHour", (params.spentTimeHour ?? 99).toString());
     formData.set("spentTimeMin", (params.spentTimeMin ?? 99).toString());
 
