@@ -272,7 +272,7 @@ export const createClient = async (config: ClientConfig) => {
   };
 
   const uploadHomework = async (params: UploadHomeworkParams) => {
-    const link = "homework/operations/create";
+    const link = baseUrl + "/homework/operations/create";
     const formData = new FormData();
 
     formData.set("id", params.homeworkId.toString());
@@ -306,7 +306,7 @@ export const createClient = async (config: ClientConfig) => {
   };
 
   const deleteHomework = async (homeworkId: number | string) => {
-    const link = "homework/operations/delete";
+    const link = baseUrl + "/homework/operations/delete";
 
     if (isTokenExpired()) {
       await updateToken();
