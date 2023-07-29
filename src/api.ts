@@ -298,11 +298,13 @@ export const createClient = async (config: ClientConfig) => {
       },
     });
 
-    if (res.status === 401) {
-      throw "Access token has expired";
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw data;
     }
 
-    return (await res.json()) as UploadedHomework | undefined;
+    return data as UploadedHomework | undefined;
   };
 
   const deleteHomework = async (homeworkId: number | string) => {
@@ -325,11 +327,13 @@ export const createClient = async (config: ClientConfig) => {
       },
     });
 
-    if (res.status === 401) {
-      throw "Access token has expired";
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw data;
     }
 
-    return (await res.json()) as boolean | undefined;
+    return data as boolean | undefined;
   };
 
   return {
