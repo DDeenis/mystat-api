@@ -291,10 +291,9 @@ export const createClient = async (config: ClientConfig) => {
       body: formData,
       method: "POST",
       headers: {
-        "Content-Type": "multipart/form-data",
         "x-language": clientData.language ?? "en",
         accept: "application/json",
-        authentication: `Bearer ${clientData.accessToken}`,
+        authorization: `Bearer ${clientData.accessToken}`,
       },
     });
 
@@ -323,17 +322,18 @@ export const createClient = async (config: ClientConfig) => {
         "Content-Type": "application/json",
         "x-language": clientData.language ?? "en",
         accept: "application/json",
-        authentication: `Bearer ${clientData.accessToken}`,
+        authorization: `Bearer ${clientData.accessToken}`,
       },
     });
 
-    const data = await res.json();
+    const data = await res.text();
 
     if (!res.ok) {
       throw data;
     }
 
-    return data as boolean | undefined;
+    // in case of error it returns string 'null'
+    return data !== "null";
   };
 
   return {
