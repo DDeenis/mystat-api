@@ -20,6 +20,8 @@ import {
   GroupInfo,
   HomeworkCount,
   UploadedHomework,
+  HomeworkDTOWithStatus,
+  HomeworkDTO,
 } from "./types.js";
 
 const baseUrl = "https://msapi.itstep.org/api/v2";
@@ -201,6 +203,24 @@ export const createClient = async (config: ClientConfig) => {
     return get<AttendanceEntry[]>(link);
   };
 
+  const getHomeworkByType = async ({
+    page = 1,
+    type = HomeworkType.Homework,
+  }: {
+    page?: number;
+    type?: HomeworkType;
+  }) => {
+    if (!clientData.groupId) {
+      const info = await getUserInfo();
+      if (!info) throw "Unable to get user group id";
+      clientData.groupId = info.current_group_id;
+    }
+
+    const link = `homework/operations/list?page=${page}&type=${type}&group_id=${clientData.groupId}`;
+
+    return get<HomeworkDTOWithStatus[]>(link);
+  };
+
   const getHomeworkList = async ({
     page = 1,
     status = HomeworkStatus.Active,
@@ -218,7 +238,7 @@ export const createClient = async (config: ClientConfig) => {
 
     const link = `homework/operations/list?page=${page}&status=${status}&type=${type}&group_id=${clientData.groupId}`;
 
-    return get<Homework[]>(link);
+    return get<HomeworkDTO>(link);
   };
 
   const getLatestNews = () => {
@@ -348,6 +368,7 @@ export const createClient = async (config: ClientConfig) => {
     getVisits,
     getAttendance,
     getHomeworkList,
+    getHomeworkByType,
     getLatestNews,
     getNewsDetails,
     getAllExams,

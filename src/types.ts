@@ -163,6 +163,22 @@ export interface Homework {
   status: HomeworkStatus;
 }
 
+export interface HomeworkDTO {
+  data: Homework[];
+  _meta: HomeworkMetadata;
+}
+
+export interface HomeworkDTOWithStatus {
+  status: HomeworkStatus;
+  data: Homework[];
+  _meta: HomeworkMetadata;
+}
+
+export interface HomeworkMetadata {
+  currentPage: number;
+  totalPages: number;
+}
+
 export interface UploadedHomework {
   id: number;
   mark?: number;
